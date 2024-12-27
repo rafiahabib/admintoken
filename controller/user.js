@@ -20,7 +20,7 @@ const register = async(req,res)=>{
 
 const getallusers=async (req,res)=>{ 
   try{
-    console.log(req.user,"useer from tolek")
+    console.log(req.user,"useer from token")
     const user=await User.findById(req.user.id);
     if(user.role!=='admin'){
       return res.status(403).json({"message":"access only for admin"});
@@ -60,22 +60,26 @@ const updateuser=async(req,res)=>{
 }
 const deleteuser = async (req, res) => {
   try {
-     
-      if (!req.user || req.user.role !== 'admin') {
-          return res.status(403).json({ message: "access only for admin" });
+      console.log("req.user:", req.user); 
+
+      if (req.user.role !== 'admin') {
+          return res.status(403).json({ message: "Access to admins only." });
       }
-      const id = req.params.id;
+      const { id } = req.params;
       const user = await User.findByIdAndDelete(id);
+
       if (!user) {
           return res.status(404).json({ message: "User not found." });
       }
-      console.log("User deleted:", user);
+
       res.json({ message: "User deleted successfully.", user });
   } catch(err){
     console.error(err)
     res.status(500).json({"message":"internal server error"})
 }
 };
+
+
 
 
 const login = async (req, res) => {
@@ -90,11 +94,7 @@ const login = async (req, res) => {
 
           if (validate) {
              
-              const token = await jwt.sign(
-                  { userId: user._id, email: user.email, role: user.role },
-                  process.env.JWT_KEY,
-                  { expiresIn: "1h" } 
-              );
+              const token = await jwt.sign({ userId: user._id, email: user.email, role: user.role },process.env.JWT_KEY, { expiresIn: "1h" } );
               res.json({  "message": "Login successfully", token: token, role: user.role });
           } else {
              

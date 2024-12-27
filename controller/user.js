@@ -58,41 +58,58 @@ const updateuser=async(req,res)=>{
         res.status(500).json({"message":"internal server error"})
     }
 }
-const deleteuser=async(req,res)=>{  
-  try{
-    const id=req.params.id
-    const user= await User.findByIdAndDelete(id)
-    
-    console.log("deleted")
-    res.json({"message":"delete successfully",user})}
-    catch(err){
-        console.error(err)
-        res.status(500).json({"message":"internal server error"})
-    }
-}
+const deleteuser = async (req, res) => {
+  try {
+     
+      if (!req.user || req.user.role !== 'admin') {
+          return res.status(403).json({ message: "access only for admin" });
+      }
+      const id = req.params.id;
+      const user = await User.findByIdAndDelete(id);
+      if (!user) {
+          return res.status(404).json({ message: "User not found." });
+      }
+      console.log("User deleted:", user);
+      res.json({ message: "User deleted successfully.", user });
+  } catch (err) {
+      console.error("Error deleting user:", err);
+      res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 
 const login = async (req, res) => {
-    try {
-    
-      const user = await User.findOne({ email: req.body.email });
-   console.log(user)
-      if (user) {
-      const validate = await bcrypt.compare(req.body.password, user.password);
+  try {
      
-      if (validate) {
-        //jwt.verify
-        const token=await jwt.sign({userId:user._id,email:user.email},process.env.JWT_KEY)
-       
-        res.json({ message: "Login successfully",token:token });
+      const user = await User.findOne({ email: req.body.email });
+      console.log(user);
+
+      if (user) {
+        
+          const validate = await bcrypt.compare(req.body.password, user.password);
+
+          if (validate) {
+             
+              const token = await jwt.sign(
+                  { userId: user._id, email: user.email, role: user.role },
+                  process.env.JWT_KEY,
+                  { expiresIn: "1h" } 
+              );
+              res.json({  "message": "Login successfully", token: token, role: user.role });
+          } else {
+             
+              res.status(401).json({ "message": "Invalid password" });
+          }
       } else {
-        res.status(401).json({ message: "Invalid password" });
-      }}
-    } catch (err) {
+      
+          res.status(404).json({ message: "User not found" });
+      }
+  } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Internal server error" });
-    }
-  };
-  
+  }
+};
+
 
 
 

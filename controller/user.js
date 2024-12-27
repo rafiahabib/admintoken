@@ -18,7 +18,7 @@ const register = async(req,res)=>{
     }
 }
 
-const getallusers=async (req,res)=>{
+const getallusers=async (req,res)=>{ 
   try{
     console.log(req.user,"useer from tolek")
     const user=await User.findById(req.user.id);
@@ -71,10 +71,10 @@ const deleteuser = async (req, res) => {
       }
       console.log("User deleted:", user);
       res.json({ message: "User deleted successfully.", user });
-  } catch (err) {
-      console.error("Error deleting user:", err);
-      res.status(500).json({ message: "Internal server error." });
-  }
+  } catch(err){
+    console.error(err)
+    res.status(500).json({"message":"internal server error"})
+}
 };
 
 

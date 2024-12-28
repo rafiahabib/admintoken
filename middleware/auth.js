@@ -7,9 +7,10 @@ function authtoken(req,res,next){
     return res.status(401).json({"message":"unauthorized"});
    }
    jwt.verify(token,"jsonweb12345",(err,data)=>{
+    
     if(err)
         return res.status(401).json({message:"unauthorized"})
-    
+    req.user=data;
     console.log(data,"from jwt")
     next();
    })

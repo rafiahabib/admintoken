@@ -65,7 +65,7 @@ const deleteuser = async (req, res) => {
       if (req.user.role !== 'admin') {
           return res.status(403).json({ message: "Access to admins only." });
       }
-      const { id } = req.params;
+      const id  = req.params.id;
       const user = await User.findByIdAndDelete(id);
 
       if (!user) {

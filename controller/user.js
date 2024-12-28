@@ -21,11 +21,6 @@ const register = async(req,res)=>{
 const getallusers=async (req,res)=>{ 
   try{
     console.log(req.user,"useer from token")
-    const user=await User.findById(req.user.id);
-    if(user.role!=='admin'){
-      return res.status(403).json({"message":"access only for admin"});
-
-    }
     const users=await User.find();
     res.status(200).json({"message":"successfully displayed all users",users:users});
 
@@ -60,11 +55,7 @@ const updateuser=async(req,res)=>{
 }
 const deleteuser = async (req, res) => {
   try {
-      console.log("req.user:", req.user); 
-
-      if (req.user.role !== 'admin') {
-          return res.status(403).json({ message: "Access to admins only." });
-      }
+     console.log("delet function")
       const id  = req.params.id;
       const user = await User.findByIdAndDelete(id);
 
